@@ -1,0 +1,48 @@
+{
+    "sections": [
+        {
+            "name": "Breast",
+            "url": "/Medical-oncology/Breast"
+        },
+        {
+            "name": "Colorectal",
+            "url": "/Medical-oncology/Colorectal"
+        },
+        {
+            "name": "Gynaecological",
+            "url": "/Medical-oncology/Gynaecological"
+        },
+        {
+            "name": "Head and neck",
+            "url": "/Medical-oncology/Head-and-neck"
+        },
+        {
+            "name": "Neurological",
+            "url": "/Medical-oncology/Neurological"
+        },
+        {
+            "name": "Respiratory",
+            "url": "/Medical-oncology/Respiratory"
+        },
+        {
+            "name": "Sarcoma",
+            "url": "/Medical-oncology/Sarcoma"
+        },
+        {
+            "name": "Skin",
+            "url": "/Medical-oncology/Skin"
+        },
+        {
+            "name": "Upper gastrointestinal",
+            "url": "/Medical-oncology/Upper-gastrointestinal"
+        },
+        {
+            "name": "Urogenital",
+            "url": "/Medical-oncology/Urogenital"
+        },
+        {
+            "name": "Rare cancers",
+            "url": "/Medical-oncology/Rare-cancers"
+        }
+    ]
+}
