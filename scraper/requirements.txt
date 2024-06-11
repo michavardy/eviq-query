@@ -1,0 +1,7 @@
+fastapi
+beautifulsoup4
+tqdm
+asyncio
+pyppeteer
+requests
+uvicorn

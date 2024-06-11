@@ -16,6 +16,7 @@ from pyppeteer.errors import TimeoutError
 
 SECTIONS_PATH = Path('data/sections.json')
 PROTOCOLS_PATH = Path('data/protocols.json')
+TRANSLATION_PATH = Path('data/translation.json')
 
 @dataclass
 class Section:
@@ -40,6 +41,7 @@ class DrugSequence:
 @dataclass
 class Protocol:
     protocol_id: str
+    protocol_status: str
     drug_sequence: list[Drug]
     section_name: str
     category_name: str
@@ -242,7 +244,7 @@ def write_protocols_to_file(protocols: list[Protocol]) -> None:
             }
         )
     Path("scraper/data/protocols.json").write_text(json.dumps(protocols_json, indent=4))
-    breakpoint()
+
 def get_medications_list() -> list[str]:
     url = 'https://www.cancerresearchuk.org/about-cancer/treatment/drugs'
     response = requests.get(url)

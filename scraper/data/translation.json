@@ -1,0 +1,20 @@
+{
+    "eviQ Query":"eviQ חיפוש",
+    "Clear":"לִמְחוֹק",
+    "Medication":"תרופה",
+    "Protocol Data Table":"טבלת נתוני פרוטוקול",
+    "ID": "מזהה פרוטוקול",
+    "Status": "סטטוס",
+    "Category": "קטגוריה",
+    "Link": "קישור",
+    "Drug Sequence": "רצף תרופות",
+    "Regimen": "סדר",
+    "Drug": "תרופה",
+    "Day": "יום",
+    "Dose": "מִנוּן",
+    "Frequency": "תדירות",
+    "Route": "דרך",
+    "Cycles": "מחזורים",
+    "Neoadjuvant": "נאואדג'ובנט",
+    "Adjuvant": "אדג'ובנט"
+  }

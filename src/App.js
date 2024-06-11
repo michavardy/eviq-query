@@ -6,24 +6,32 @@ import Form from './components/Form.jsx';
 import Display from './components/Display.jsx';
 import React, { useState} from 'react';
 function App() {
-  const { sections, medications, protocols } = useData();
+  const { sections, medications, protocols, translation } = useData();
   const [selectedSection, setSelectedSection] = useState('');
   const [selectedMedicines, setSelectedMedicines] = useState([]);
+  const [selectedStatuses, setSelectedStatuses] = useState([]);
+  const [selectedLanguage, setSelectedLanguage] = useState("E");
   return (
     <div className="App">
-        <TopBar/>
+        <TopBar setSelectedLanguage={setSelectedLanguage} selectedLanguage={selectedLanguage} translation={translation}/>
         <div className="flex">
-        <div className="w-1/5 p-4">
+        <div className="w-1/6 p-4">
           <Form 
           sections={sections} 
           selectedSection={selectedSection} 
           setSelectedSection={setSelectedSection} 
           medications={medications} 
           selectedMedicines={selectedMedicines} 
-          setSelectedMedicines={setSelectedMedicines} />
+          setSelectedMedicines={setSelectedMedicines} 
+          setSelectedStatuses={setSelectedStatuses}
+          selectedStatuses={selectedStatuses}
+          protocols={protocols}
+          translation={translation}
+          selectedLanguage={selectedLanguage}
+          />
         </div>
-        <div className="w-4/5 p-4">
-          <Display protocols={protocols} selectedMedicines={selectedMedicines} selectedSection={selectedSection}/>
+        <div className="w-5/6 p-4">
+          <Display protocols={protocols} selectedMedicines={selectedMedicines} selectedSection={selectedSection} selectedStatuses={selectedStatuses} selectedLanguage={selectedLanguage} translation={translation}/>
         </div>
       </div>
 

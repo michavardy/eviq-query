@@ -1,6 +1,10 @@
 import React from 'react';
 
-export default function TopBar() {
+export default function TopBar({setSelectedLanguage, selectedLanguage, translation}) {
+    console.log(translation)
+    const toggleLanguage = () => {
+        setSelectedLanguage(selectedLanguage === 'E' ? 'H' : 'E');
+    };
     return (
         <div className="w-full bg-[#23227d] text-white flex justify-start items-center p-4">
             <svg
@@ -19,7 +23,15 @@ export default function TopBar() {
                 <path d="m-64.843 20.869 18.722 18.631 18.859-18.448c-6.8354-5.7042-13.355-7.9294-18.859 1.0046-7.3517-10.822-14.774-3.9709-18.722-1.1873z" fill="#373676" stop-color="#000000" />
                 </g>
             </svg>
-            <span className="text-2xl ml-4">חיפוש eviQ</span>
+            <span className="text-2xl ml-4">
+                {selectedLanguage === 'H' && translation['eviQ Query'] ? translation['eviQ Query'] : 'eviQ Query'}
+                </span>
+            <button
+                onClick={toggleLanguage}
+                className="ml-4 bg-blue-500 text-white px-2 py-1 rounded"
+            >
+                {selectedLanguage === 'E' ? 'H' : 'E'}
+            </button>
         </div>
     );
 }
