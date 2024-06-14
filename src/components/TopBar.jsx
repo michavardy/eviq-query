@@ -1,7 +1,6 @@
 import React from 'react';
 
 export default function TopBar({setSelectedLanguage, selectedLanguage, translation}) {
-    console.log(translation)
     const toggleLanguage = () => {
         setSelectedLanguage(selectedLanguage === 'E' ? 'H' : 'E');
     };

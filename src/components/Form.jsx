@@ -1,96 +1,125 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import Button from '@mui/material/Button'; // Import the Button component from MUI
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
 
-export default function Form({ sections, medications, selectedMedicines, setSelectedMedicines, selectedSection, setSelectedSection, setSelectedStatuses, selectedStatuses, protocols, translation, selectedLanguage}) {
-  const [uniqueStatuses, setUniqueStatuses] = useState([]);
-
-  // Function to extract unique statuses from protocols
-  useEffect(() => {
-    const statuses = Array.from(new Set(protocols.map(protocol => protocol.protocol_status)));
-    setUniqueStatuses(statuses);
-  }, [protocols]);
+export default function Form({ sections, medications, selectedMedicines, setSelectedMedicines, selectedSection, setSelectedSection, protocols, translation, selectedLanguage }) {
+  const [isAdjuvant, setIsAdjuvant] = useState(false);
+  const [isNeoadjuvant, setIsNeoadjuvant] = useState(false);
+  const [medicineInputValue, setMedicineInputValue] = useState('');
 
   const handleSectionChange = (event) => {
     setSelectedSection(event.target.value);
   };
 
   const handleMedicineChange = (event, value) => {
-    setSelectedMedicines(Array.isArray(value) ? value : []);
-  };
-
-  const handleStatusChange = (event, value) => {
-    setSelectedStatuses(Array.isArray(value) ? value : []);
+    if (value) {
+      setSelectedMedicines((prev) => [
+        ...prev,
+        { medication: value, adjuvant: isAdjuvant, neoadjuvant: isNeoadjuvant }
+      ]);
+    }
+    setMedicineInputValue(''); // Clear the medication field input after selection
   };
 
   const handleClear = () => {
-    setSelectedSection("");
+    setSelectedSection('');
     setSelectedMedicines([]);
-    setSelectedStatuses([]);
+    setIsAdjuvant(false);
+    setIsNeoadjuvant(false);
   };
 
+  const handleRemoveMedicine = (index) => {
+    setSelectedMedicines((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  function translate(keyword) {
+    if (selectedLanguage === 'H' && translation[keyword]) {
+      return translation[keyword];
+    } else {
+      return keyword;
+    }
+  }
+
   return (
-    <div className="flex flex-col space-y-4">
-      <FormControl className="w-56">
-        <InputLabel id="section_selection">
-        {selectedLanguage === 'H' && translation['Category'] ? translation['Category'] : 'Category'}
+    <div>
+      <Typography variant="h5" className="text-gray-700 mb-4" style={{ fontWeight: 'bold', textAlign: 'left' }}>
+        {translate('Filter')}
+      </Typography>
+      <div className="flex flex-wrap items-center space-x-4 mb-4">
+        <FormControl className="w-56">
+          <InputLabel id="section_selection">
+            {translate('Category')}
           </InputLabel>
-        {sections.sections ? ( // Check if sections.sections is defined
-          <Select
-            labelId="section_selection-label"
-            id="section_selection"
-            label="Section"
-            value={selectedSection}
-            onChange={handleSectionChange} // Handle the onChange event
-          >
-            {sections.sections.map((section) => (
-              <MenuItem key={section.id} value={section.name}>{section.name}</MenuItem>
-            ))}
-          </Select>
-        ) : (
-          <div>Loading sections...</div> // Render a loading message while sections are being fetched
-        )}
-      </FormControl>
+          {sections.sections ? (
+            <Select
+              labelId="section_selection-label"
+              id="section_selection"
+              label="Section"
+              value={selectedSection}
+              onChange={handleSectionChange}
+            >
+              {sections.sections.map((section) => (
+                <MenuItem key={section.id} value={section.name}>{section.name}</MenuItem>
+              ))}
+            </Select>
+          ) : (
+            <div>Loading sections...</div>
+          )}
+        </FormControl>
 
-      <FormControl className="w-56">
-        <Autocomplete
-          multiple
-          disablePortal
-          id="medications-autocomplete"
-          options={medications}
-          value={selectedMedicines} // Set the value prop to selectedMedicines
-          onChange={handleMedicineChange}
-          sx={{ width: 300 }}
-          renderInput={(params) => <TextField {...params} label={selectedLanguage === 'H' && translation['Medication'] ? translation['Medication'] : 'Medication'} />}
-        />
-      </FormControl>
+        <FormControl className="w-56">
+          <Autocomplete
+            disablePortal
+            id="medications-autocomplete"
+            options={medications}
+            inputValue={medicineInputValue}
+            onInputChange={(event, newInputValue) => setMedicineInputValue(newInputValue)}
+            onChange={handleMedicineChange}
+            renderInput={(params) => <TextField {...params} label={translate('Medication')} value={medicineInputValue} />}
+          />
+        </FormControl>
 
-      <FormControl className="w-56">
-        <Autocomplete
-          multiple
-          disablePortal
-          id="statuses-autocomplete"
-          options={uniqueStatuses}
-          value={selectedStatuses} // Set the value prop to selectedStatuses
-          onChange={handleStatusChange}
-          sx={{ width: 300 }}
-          renderInput={(params) => <TextField {...params} label={selectedLanguage === 'H' && translation['Status'] ? translation['Status'] : 'Status'} />}
-        />
-      </FormControl>
+        <div className='flex flex-col'>
+          <FormControlLabel
+            control={<Checkbox checked={isAdjuvant} onChange={() => setIsAdjuvant(!isAdjuvant)} />}
+            label={translate('Adjuvant')}
+          />
+          <FormControlLabel
+            control={<Checkbox checked={isNeoadjuvant} onChange={() => setIsNeoadjuvant(!isNeoadjuvant)} />}
+            label={translate('Neoadjuvant')}
+          />
+        </div>
 
-      <Button 
-        variant="contained" 
-        color="primary" 
-        onClick={handleClear} 
-        sx={{ width: 150 }} // Apply the same width as the other controls
-      >
-        {selectedLanguage === 'H' && translation['Clear'] ? translation['Clear'] : 'Clear'}
-      </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleClear}
+          className="h-12"
+        >
+          {translate('Clear')}
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap">
+        {selectedMedicines.map((med, index) => (
+          <Chip
+            key={index}
+            label={`${med.medication} (${med.adjuvant ? translate('Adjuvant') : ''} ${med.neoadjuvant ? translate('Neoadjuvant') : ''})`}
+            onDelete={() => handleRemoveMedicine(index)}
+            className="m-1"
+            style={{ backgroundColor: '#f0f0f0', color: '#000', borderRadius: '4px', margin: '4px' }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -5,3 +5,5 @@ asyncio
 pyppeteer
 requests
 uvicorn
+tinydb
+python-dotenv

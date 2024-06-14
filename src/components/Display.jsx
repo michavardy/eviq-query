@@ -1,36 +1,63 @@
 import React, { useState } from 'react';
+import { Edit, Delete } from '@mui/icons-material'; // Importing Material-UI icons
+import EditModal from './EditModule';
+import useData from './useData';
+import { useToasts } from 'react-toast-notifications';
 
-export default function Display({ protocols, selectedMedicines, selectedSection, selectedStatuses, selectedLanguage, translation }) {
+export default function Display({ protocols, selectedMedicines, selectedSection, selectedLanguage, translation, comments, reLoadCommentsData }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalInputValue, setModalInputValue] = useState('');
+  const [editProtocolId, setEditProtocolId] = useState(null); // Track which protocol is being edited
+  const { putComment, deleteComment } = useData();
+  const { addToast } = useToasts();
 
   const handleChangePage = (newPage) => {
     setPage(newPage);
   };
 
+  const filterBySection = (protocols) => {
+    return protocols.filter((protocol) => {
+      return !selectedSection || protocol.category_name.toLowerCase() === selectedSection.toLowerCase();
+    });
+  };
 
+  const filterByDrugSequence = (protocols) => {
+    return protocols.filter((protocol) => {
+      const firstDrug = protocol.drug_sequence[0]?.[0];
+      if (!firstDrug) {
+        return false; // Filter out protocols with no drug sequence
+      }
+      return true; // Keep protocols with drug sequence
+    });
+  };
+
+  const filterByMedications = (protocols) => {
+    return protocols.filter((protocol) => {
+      const firstDrug = protocol.drug_sequence[0]?.[0];
+      if (!firstDrug) return false; // No drug sequence, filter out
+      return selectedMedicines.length === 0 ||
+        selectedMedicines.some(med => {
+          return med.medication.toLowerCase() === firstDrug.drug_name.toLowerCase() &&
+            med.adjuvant === firstDrug.is_adjuvant &&
+            med.neoadjuvant === firstDrug.is_neoadjuvant
+        }
+
+        );
+    });
+  };
 
   const filterProtocols = (protocols) => {
     try {
-      return protocols.filter((protocol) => {
-        const matchesSection = selectedSection
-          ? protocol.category_name && protocol.category_name.toLowerCase() === selectedSection.toLowerCase()
-          : true;
 
-        const allDrugs = protocol.drug_sequence.flat().map(sequence =>
-          sequence.drug_name ? sequence.drug_name.toLowerCase() : ''
-        );
+      let filteredProtocols = [...protocols];
 
-        const matchesMedicine = selectedMedicines.length
-          ? selectedMedicines.every(med => allDrugs.includes(med.toLowerCase()))
-          : true;
+      filteredProtocols = filterBySection(filteredProtocols);
+      filteredProtocols = filterByDrugSequence(filteredProtocols);
+      filteredProtocols = filterByMedications(filteredProtocols);
 
-        const matchesStatus = selectedStatuses.length
-          ? selectedStatuses.includes(protocol.protocol_status)
-          : true;
-
-        return matchesSection && matchesMedicine && matchesStatus;
-      });
+      return filteredProtocols;
     } catch (error) {
       console.error("Error filtering protocols:", error);
       return []; // Return an empty array if there's an error
@@ -55,64 +82,115 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
     });
   };
 
+  function translate(keyword) {
+    if (selectedLanguage === 'H' && translation[keyword]) {
+      return translation[keyword];
+    } else {
+      return keyword;
+    }
+  }
   const filteredProtocols = filterProtocols(protocols);
   const uniqueProtocols = filterDuplicates(filteredProtocols);
   const paginatedProtocols = uniqueProtocols.slice((page - 1) * rowsPerPage, page * rowsPerPage);
   const pageCount = Math.ceil(uniqueProtocols.length / rowsPerPage);
 
+  // Function to open modal for editing
+  const openModal = (protocolId, initialValue) => {
+    const currentComment = comments.find(comment => comment.ID === protocolId.replace(' ', '_'))?.Comment || '';
+    setEditProtocolId(protocolId);
+    setModalInputValue(currentComment);
+    setIsModalOpen(true);
+  };
+
+  // Function to close modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditProtocolId(null);
+    setModalInputValue('');
+  };
+
+  // Function to handle save in modal
+  const handleSaveModal = (newValue) => {
+    // Implement save logic here (e.g., update protocol with newValue)
+    console.log(`Save clicked for protocol ID ${editProtocolId} with new value: ${newValue}`);
+    putComment(editProtocolId, newValue)
+      .then(() => {
+        addToast('Comment saved successfully', { appearance: 'success' });
+        closeModal();
+        reLoadCommentsData()
+      })
+      .catch((error) => {
+        console.error('Error saving comment:', error);
+        addToast('Failed to save comment', { appearance: 'error' });
+      });
+  };
+
+  // Function to handle cancel in modal
+  const handleCancelModal = () => {
+    // Implement cancel logic here (e.g., discard changes)
+    console.log('Cancel clicked');
+    closeModal();
+  };
+
+  const handleDeleteComment = (protocolId) => {
+    // Call deleteComment from useData hook to delete the comment
+    deleteComment(protocolId)
+    .then(() => {
+      addToast('Comment removed successfully', { appearance: 'success' });
+      reLoadCommentsData()
+    })
+    console.log(`Delete clicked for protocol ID ${protocolId}`);
+    // Optionally, you can add additional logic here after deleting the comment
+  };
+
   return (
     <div id='table-component' className="p-4">
-      <div id='table-title' className="text-2xl font-bold mb-4 text-gray-500">
-        {selectedLanguage === 'H' && translation['Protocol Data Table'] ? translation['Protocol Data Table'] : 'Protocol Data Table'}
-      </div>
       <div id='table-container' className="overflow-x-auto">
         <table className="min-w-full border-collapse border border-gray-300">
           <thead className="bg-gray-50">
             <tr>
               <th rowSpan="2" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['ID'] ? translation['ID'] : 'ID'}
+                {translate('ID')}
               </th>
               <th rowSpan="2" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Status'] ? translation['Status'] : 'Status'}
+                {translate('Category')}
               </th>
               <th rowSpan="2" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Category'] ? translation['Category'] : 'Category'}
+                {translate('Comment')}
               </th>
               <th rowSpan="2" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Link'] ? translation['Link'] : 'Link'}
+                {translate('Action')}
+              </th>
+              <th rowSpan="2" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
+                {translate('Link')}
               </th>
               <th colSpan="9" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Drug Sequence'] ? translation['Drug Sequence'] : 'Drug Sequence'}
+                {translate('Drug Sequence')}
               </th>
             </tr>
             <tr>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Regimen'] ? translation['Regimen'] : 'Regimen'}
+                {translate('Regimen')}
               </th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Drug'] ? translation['Drug'] : 'Drug'}
+                {translate('Drug')}
               </th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Day'] ? translation['Day'] : 'Day'}
+                {translate('Neoadjuvant')}
               </th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Dose'] ? translation['Dose'] : 'Dose'}
+                {translate('Adjuvant')}
               </th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Frequency'] ? translation['Frequency'] : 'Frequency'}
+                {translate('Day')}
               </th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Route'] ? translation['Route'] : 'Route'}
+                {translate('Dose')}
               </th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Cycles'] ? translation['Cycles'] : 'Cycles'}
+                {translate('Cycles')}
               </th>
-              <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Neoadjuvant'] ? translation['Neoadjuvant'] : 'Neoadjuvant'}
-              </th>
-              <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {selectedLanguage === 'H' && translation['Adjuvant'] ? translation['Adjuvant'] : 'Adjuvant'}
-              </th>
+
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -126,8 +204,41 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
                         {seqIndex === 0 && drugIndex === 0 && (
                           <>
                             <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">{protocol.protocol_id}</td>
-                            <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">{protocol.protocol_status}</td>
                             <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">{protocol.category_name}</td>
+                            <td
+                              rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)}
+                              className="px-4 py-2 text-sm text-gray-500 border break-words"
+                            >
+                              {comments
+                                .find((comment) => comment.ID === protocol.protocol_id.replace(" ", "_"))
+                                ?.Comment.split("\n")
+                                .map((line, index) => (
+                                  <React.Fragment key={index}>
+                                    {line}
+                                    <br />
+                                  </React.Fragment>
+                                ))}
+                            </td>
+                            <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">
+                              <div className="flex space-x-2">
+                                {/* Edit Button */}
+                                <button
+                                  onClick={() => openModal(protocol.protocol_id, '')}
+                                  className="text-blue-500 hover:text-blue-600 focus:outline-none transition duration-300 ease-in-out"
+                                >
+                                  <Edit fontSize="small" className="inline-block align-middle" />
+                                  <span className="sr-only">Edit</span>
+                                </button>
+                                {/* Delete Button */}
+                                <button
+                                  onClick={() => handleDeleteComment(protocol.protocol_id)}
+                                  className="text-red-500 hover:text-red-600 focus:outline-none transition duration-300 ease-in-out"
+                                >
+                                  <Delete fontSize="small" className="inline-block align-middle" />
+                                  <span className="sr-only">Delete</span>
+                                </button>
+                              </div>
+                            </td>
                             <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">
                               <a href={protocol.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Link</a>
                             </td>
@@ -137,13 +248,14 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
                           <td rowSpan={sequence.length} className="px-4 py-2 text-sm text-gray-500 border">{seqIndex + 1}</td>
                         )}
                         <td className="px-4 py-2 text-sm text-gray-500">{seqItem.drug_name}</td>
-                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.day}</td>
-                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.dose}</td>
-                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.frequency}</td>
-                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.route}</td>
-                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.cycles}</td>
                         <td className="px-4 py-2 text-sm text-gray-500">{seqItem.is_neoadjuvant ? 'Yes' : 'No'}</td>
                         <td className="px-4 py-2 text-sm text-gray-500">{seqItem.is_adjuvant ? 'Yes' : 'No'}</td>
+                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.day}</td>
+                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.dose}</td>
+                        <td className="px-2 py-2 text-sm text-gray-500 max-w-[200px]">
+                          {seqItem.cycles}
+                        </td>
+
                       </tr>
                     ))}
 
@@ -195,6 +307,12 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
           </button>
         </div>
       </div>
+      <EditModal
+        isOpen={isModalOpen}
+        initialValue={modalInputValue}
+        onSave={handleSaveModal}
+        onCancel={handleCancelModal}
+      />
     </div>
   );
 }
