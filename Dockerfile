@@ -4,7 +4,7 @@ FROM node:16 AS build-stage
 WORKDIR /app
 
 # Copy the package.json and package-lock.json files
-COPY package.json package-lock.json yarn.lock tailwind.config.js .env ./
+COPY package.json package-lock.json yarn.lock tailwind.config.js  ./
 
 # Install dependencies
 #RUN npm install
