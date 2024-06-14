@@ -24,6 +24,5 @@ yarn-error.log*
 scraper/__pycache__*
 .env
 /design
-/.github
 /.pytest_cache
 
