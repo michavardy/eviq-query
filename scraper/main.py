@@ -41,13 +41,13 @@ class EditCommentRequest(BaseModel):
     newComment: str
 
 # Serve static files from the 'frontend/build' directory
-#app.mount("/static", StaticFiles(directory=Path("/app/frontend/build/static")), name="static")
+app.mount("/static", StaticFiles(directory=Path("/app/frontend/build/static")), name="static")
 #
 ## Serve the React frontend
-#@app.get("/")
-#async def serve_frontend():
-#    frontend_path = Path("/app/frontend/build/index.html")
-#    return FileResponse(frontend_path)
+@app.get("/")
+async def serve_frontend():
+    frontend_path = Path("/app/frontend/build/index.html")
+    return FileResponse(frontend_path)
 
 # Serve favicon.ico
 @app.get("/favicon.ico")

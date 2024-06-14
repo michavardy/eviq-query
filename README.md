@@ -54,3 +54,8 @@ docker build -t eviq .
 docker run -p 8000:8000 eviq
 docker exec -it <container-id> sh
 ```
+
+## run docker
+```bash
+docker run -p 8000:8000 michav1/eviq:latest
+```
