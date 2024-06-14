@@ -4,12 +4,11 @@ FROM node:16 AS build-stage
 WORKDIR /app
 
 # Copy the package.json and package-lock.json files
-COPY package.json package-lock.json tailwind.config.js ./
-
-
+COPY package.json package-lock.json yarn.lock tailwind.config.js .env ./
 
 # Install dependencies
-RUN npm install
+#RUN npm install
+RUN yarn install
 
 # Copy the necessary files and directories for the React application
 COPY src ./src
