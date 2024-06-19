@@ -6,12 +6,12 @@ function useData() {
   const [protocols, setProtocols] = useState([])
   const [translation, setTranslation] = useState({})
   const [comments, setComments] = useState([])
-  const baseURL = `http://${window.location.hostname}:8000`;
+  const baseURL = `http://${window.location.hostname}`;
 
   useEffect(() => {
-    const baseURL = `http://${window.location.hostname}:8000`;
+    const baseURL = `http://${window.location.hostname}`;
     const fetchSectionData = async () => {
-        const response = await fetch(`${baseURL}/sections`);
+        const response = await fetch(`${baseURL}/eviq-query/sections`);
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
@@ -19,7 +19,7 @@ function useData() {
         setSections(jsonData);
     };
     const fetchMediationData = async () => {
-      const response = await fetch(`${baseURL}/medications`);
+      const response = await fetch(`${baseURL}/eviq-query/medications`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -27,7 +27,7 @@ function useData() {
       setMedications(jsonData)
     }
     const fetchProtocolData = async () => {
-      const response = await fetch(`${baseURL}/protocols`);
+      const response = await fetch(`${baseURL}/eviq-query/protocols`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
@@ -35,7 +35,7 @@ function useData() {
       setProtocols(jsonData);
   };
   const fetchTranslationData = async () => {
-    const response = await fetch(`${baseURL}/translation`);
+    const response = await fetch(`${baseURL}/eviq-query/translation`);
     if (!response.ok) {
       throw new Error('Failed to fetch data');
     }
@@ -43,7 +43,7 @@ function useData() {
     setTranslation(jsonData);
   };
   const fetchCommentsData = async () => {
-    const response = await fetch(`${baseURL}/comments`);
+    const response = await fetch(`${baseURL}/eviq-query/comments`);
     if (!response.ok) {
       throw new Error('Failed to fetch data');
     }
@@ -61,7 +61,7 @@ function useData() {
   const putComment = async (protocolId, newComment) => {
     const transformedProtocolId = protocolId.replace(/\s/g, '_');
     try {
-      const response = await fetch(`http://${window.location.hostname}:8000/comments/${transformedProtocolId}`, {
+      const response = await fetch(`http://${window.location.hostname}/eviq-querycomments/${transformedProtocolId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ function useData() {
     }
   };
   const reLoadCommentsData = async () => {
-    const response = await fetch(`${baseURL}/comments`);
+    const response = await fetch(`${baseURL}/eviq-query/comments`);
     if (!response.ok) {
       throw new Error('Failed to fetch data');
     }
@@ -90,7 +90,7 @@ function useData() {
   const deleteComment = async (protocolId) => {
     const transformedProtocolId = protocolId.replace(/\s/g, '_');
     try {
-      const response = await fetch(`http://${window.location.hostname}:8000/comments/${transformedProtocolId}`, {
+      const response = await fetch(`http://${window.location.hostname}/eviq-query/comments/${transformedProtocolId}`, {
         method: 'DELETE',
       });
       if (!response.ok) {

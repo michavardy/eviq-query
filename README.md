@@ -24,7 +24,7 @@ eviQ Query is a tool designed to make the vast resources of the eviQ website mor
 To install and run eviQ Query, use the following Docker command:
 
 ```bash
-docker run -p 8000:8000 michav1/eviq:latest
+docker run -p 80:80 michav1/eviq:latest
 ```
 
 ## Connectivity
@@ -51,11 +51,11 @@ uvicorn main:app --reload  #http://localhost:8000
 ## test Docker
 ```bash
 docker build -t eviq .
-docker run -p 8000:8000 eviq
+docker run -p 80:80 eviq
 docker exec -it <container-id> sh
 ```
 
 ## run docker
 ```bash
-docker run -p 8000:8000 michav1/eviq:latest
+docker run -p 80:80 michav1/eviq:latest
 ```

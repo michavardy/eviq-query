@@ -32,7 +32,7 @@ COPY --from=build-stage /app/build ./frontend/build
 COPY scraper/ .
 
 # Expose the port the app runs on
-EXPOSE 8000
+EXPOSE 80
 
 # Run the FastAPI server with Uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
