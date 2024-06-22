@@ -48,8 +48,7 @@ app.mount("/static", StaticFiles(directory=Path("/app/frontend/build/static")), 
 async def serve_frontend():
     frontend_path = Path("/app/frontend/build/index.html")
     return FileResponse(frontend_path)
-
-# Serve favicon.ico
+#Serve favicon.ico
 @app.get("/eviq-query/favicon.ico")
 async def favicon():
     favicon_path = Path("/app/frontend/build//favicon.ico")

@@ -58,6 +58,18 @@ function useData() {
     fetchCommentsData();
   }, []);
 
+  useEffect(()=>{
+    function extractMetastaticData() {
+      if (protocols.length > 0) {
+        const updatedProtocols = protocols.map(protocol => {
+          const isMetastatic = /metastatic/i.test(protocol.url);
+          return { ...protocol, metastatic: isMetastatic };
+        });
+        setProtocols(updatedProtocols);
+      }
+    }
+    extractMetastaticData();
+  },[protocols])
   const putComment = async (protocolId, newComment) => {
     const transformedProtocolId = protocolId.replace(/\s/g, '_');
     try {

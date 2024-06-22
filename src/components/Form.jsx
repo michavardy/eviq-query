@@ -10,8 +10,9 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
+import Switch from '@mui/material/Switch';  // Import the Switch component
 
-export default function Form({ sections, medications, selectedMedicines, setSelectedMedicines, selectedSection, setSelectedSection, protocols, translation, selectedLanguage }) {
+export default function Form({ sections, medications, selectedMedicines, setSelectedMedicines, selectedSection, setSelectedSection, protocols, translation, selectedLanguage, isMetaStatic, setIsMetaStatic }) {
   const [isAdjuvant, setIsAdjuvant] = useState(false);
   const [isNeoadjuvant, setIsNeoadjuvant] = useState(false);
   const [medicineInputValue, setMedicineInputValue] = useState('');
@@ -35,6 +36,7 @@ export default function Form({ sections, medications, selectedMedicines, setSele
     setSelectedMedicines([]);
     setIsAdjuvant(false);
     setIsNeoadjuvant(false);
+    setIsMetaStatic(false)
   };
 
   const handleRemoveMedicine = (index) => {
@@ -48,6 +50,10 @@ export default function Form({ sections, medications, selectedMedicines, setSele
       return keyword;
     }
   }
+
+  const handleMetaStaticChange = (event) => {
+    setIsMetaStatic(event.target.checked);
+  };
 
   return (
     <div>
@@ -75,7 +81,10 @@ export default function Form({ sections, medications, selectedMedicines, setSele
             <div>Loading sections...</div>
           )}
         </FormControl>
-
+        <FormControlLabel
+          control={<Switch checked={isMetaStatic} onChange={handleMetaStaticChange} />}
+          label={translate('Metastatic')}
+        />
         <FormControl className="w-56">
           <Autocomplete
             disablePortal

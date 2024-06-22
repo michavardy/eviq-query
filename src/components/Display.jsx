@@ -4,7 +4,7 @@ import EditModal from './EditModule';
 import useData from './useData';
 import { useToasts } from 'react-toast-notifications';
 
-export default function Display({ protocols, selectedMedicines, selectedSection, selectedLanguage, translation, comments, reLoadCommentsData }) {
+export default function Display({ protocols, selectedMedicines, selectedSection, selectedLanguage, translation, comments, reLoadCommentsData, isMetaStatic }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,7 +47,11 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
         );
     });
   };
-
+  const filterByMetastatic = (protocols) => {
+    return protocols.filter((protocol) => {
+      return protocol.metastatic === isMetaStatic;
+    });
+  };
   const filterProtocols = (protocols) => {
     try {
 
@@ -56,6 +60,7 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
       filteredProtocols = filterBySection(filteredProtocols);
       filteredProtocols = filterByDrugSequence(filteredProtocols);
       filteredProtocols = filterByMedications(filteredProtocols);
+      filteredProtocols = filterByMetastatic(filteredProtocols);
 
       return filteredProtocols;
     } catch (error) {
@@ -65,20 +70,19 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
   };
 
   const filterDuplicates = (protocols) => {
-    return protocols.map((protocol) => {
-      const seen = new Set();
-      const uniqueSequences = protocol.drug_sequence.map((sequence) => {
-        return sequence.filter((seqItem) => {
-          const identifier = `${seqItem.drug_name}-${seqItem.day}-${seqItem.dose}-${seqItem.frequency}-${seqItem.route}-${seqItem.cycles}-${seqItem.is_neoadjuvant}-${seqItem.is_adjuvant}`;
-          if (seen.has(identifier)) {
-            return false;
-          } else {
-            seen.add(identifier);
-            return true;
-          }
-        });
-      });
-      return { ...protocol, drug_sequence: uniqueSequences };
+    const seenProtocols = new Set();
+  
+    return protocols.filter((protocol) => {
+      // Create a composite key based on protocol, category, and metastatic
+      const key = `${protocol.protocol_id}-${protocol.category_name}-${protocol.metastatic}`;
+  
+      // Check if the key is already in seenProtocols set
+      if (seenProtocols.has(key)) {
+        return false; // Filter out protocols with duplicate key
+      } else {
+        seenProtocols.add(key);
+        return true; // Keep the protocol
+      }
     });
   };
 
@@ -164,6 +168,9 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
               <th rowSpan="2" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
                 {translate('Link')}
               </th>
+              <th rowSpan="2" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
+                {translate('Metastatic')}
+              </th>
               <th colSpan="9" className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
                 {translate('Drug Sequence')}
               </th>
@@ -242,6 +249,7 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
                             <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">
                               <a href={protocol.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Link</a>
                             </td>
+                            <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">{protocol.metastatic? 'Yes' : 'No'}</td>
                           </>
                         )}
                         {drugIndex === 0 && (

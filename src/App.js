@@ -11,6 +11,7 @@ import { ToastProvider } from 'react-toast-notifications';
 function App() {
   const { sections, medications, protocols, translation, comments, reLoadCommentsData } = useData();
   const [selectedSection, setSelectedSection] = useState('');
+  const [isMetaStatic, setIsMetaStatic] = useState(false)
   const [selectedMedicines, setSelectedMedicines] = useState([]);
   const [selectedLanguage, setSelectedLanguage] = useState("E");
 
@@ -38,6 +39,8 @@ function App() {
           protocols={protocols}
           translation={translation}
           selectedLanguage={selectedLanguage}
+          isMetaStatic={isMetaStatic}
+          setIsMetaStatic={setIsMetaStatic}
           />
         </div>
         <div className="p-4">
@@ -50,6 +53,7 @@ function App() {
           translation={translation}
           comments={comments}
           reLoadCommentsData={reLoadCommentsData}
+          isMetaStatic={isMetaStatic}
           />
           </ToastProvider>
         </div>
