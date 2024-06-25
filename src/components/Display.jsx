@@ -32,7 +32,24 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
       return true; // Keep protocols with drug sequence
     });
   };
-
+  function filterUniqueDrugs(protocols) {
+    const filteredProtocols = protocols.map(protocol => {
+      const filteredDrugSequence = protocol.drug_sequence.map(sequence => {
+        const seenDrugs = new Set();
+        return sequence.filter(drug => {
+          const drugKey = `${drug.drug_name}-${drug.is_neoadjuvant}-${drug.is_adjuvant}-${drug.day}-${drug.dose}-${drug.cycles}`;
+          if (seenDrugs.has(drugKey)) {
+            return false; // Filter out duplicate drugs
+          } else {
+            seenDrugs.add(drugKey);
+            return true; // Keep the drug
+          }
+        });
+      });
+      return { ...protocol, drug_sequence: filteredDrugSequence };
+    });
+    return filteredProtocols;
+  }
   const filterByMedications = (protocols) => {
     return protocols.filter((protocol) => {
       const firstDrug = protocol.drug_sequence[0]?.[0];
@@ -60,6 +77,7 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
       filteredProtocols = filterBySection(filteredProtocols);
       filteredProtocols = filterByDrugSequence(filteredProtocols);
       filteredProtocols = filterByMedications(filteredProtocols);
+      filteredProtocols = filterUniqueDrugs(filteredProtocols);
       filteredProtocols = filterByMetastatic(filteredProtocols);
 
       return filteredProtocols;

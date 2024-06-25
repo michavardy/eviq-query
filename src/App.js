@@ -13,7 +13,7 @@ function App() {
   const [selectedSection, setSelectedSection] = useState('');
   const [isMetaStatic, setIsMetaStatic] = useState(false)
   const [selectedMedicines, setSelectedMedicines] = useState([]);
-  const [selectedLanguage, setSelectedLanguage] = useState("E");
+  const [selectedLanguage, setSelectedLanguage] = useState("H");
 
   function translate(keyword) {
     if (selectedLanguage === 'H' && translation[keyword]) {
