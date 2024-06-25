@@ -34,8 +34,8 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
   };
   function filterUniqueDrugs(protocols) {
     const filteredProtocols = protocols.map(protocol => {
+      const seenDrugs = new Set();
       const filteredDrugSequence = protocol.drug_sequence.map(sequence => {
-        const seenDrugs = new Set();
         return sequence.filter(drug => {
           const drugKey = `${drug.drug_name}-${drug.is_neoadjuvant}-${drug.is_adjuvant}-${drug.day}-${drug.dose}-${drug.cycles}`;
           if (seenDrugs.has(drugKey)) {
