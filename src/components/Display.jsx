@@ -207,9 +207,6 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
                 {translate('Adjuvant')}
               </th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
-                {translate('Day')}
-              </th>
-              <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
                 {translate('Dose')}
               </th>
               <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border">
@@ -276,7 +273,6 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
                         <td className="px-4 py-2 text-sm text-gray-500">{seqItem.drug_name}</td>
                         <td className="px-4 py-2 text-sm text-gray-500">{seqItem.is_neoadjuvant ? 'Yes' : 'No'}</td>
                         <td className="px-4 py-2 text-sm text-gray-500">{seqItem.is_adjuvant ? 'Yes' : 'No'}</td>
-                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.day}</td>
                         <td className="px-4 py-2 text-sm text-gray-500">{seqItem.dose}</td>
                         <td className="px-2 py-2 text-sm text-gray-500 max-w-[200px]">
                           {seqItem.cycles}
