@@ -64,7 +64,7 @@ async def get_sections():
 @app.get("/eviq-query/medications")
 async def get_medications():
     medications = get_medications_list()
-    medications = [med for med in {m.split(' ')[0] for m in medications} if len(med)>3]
+    #medications = [med for med in {m.split(' ')[0] for m in medications} if len(med)>3]
     if medications:
         return medications
     return JSONResponse(status_code=500, content={"message": "Failed to fetch medications"})

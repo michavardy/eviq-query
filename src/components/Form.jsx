@@ -85,6 +85,16 @@ export default function Form({ sections, medications, selectedMedicines, setSele
           control={<Switch checked={isMetaStatic} onChange={handleMetaStaticChange} />}
           label={translate('Metastatic')}
         />
+        <div className='flex flex-col'>
+          <FormControlLabel
+            control={<Checkbox checked={isAdjuvant} onChange={() => setIsAdjuvant(!isAdjuvant)} />}
+            label={translate('Adjuvant')}
+          />
+          <FormControlLabel
+            control={<Checkbox checked={isNeoadjuvant} onChange={() => setIsNeoadjuvant(!isNeoadjuvant)} />}
+            label={translate('Neoadjuvant')}
+          />
+        </div>
         <FormControl className="w-56">
           <Autocomplete
             disablePortal
@@ -96,18 +106,6 @@ export default function Form({ sections, medications, selectedMedicines, setSele
             renderInput={(params) => <TextField {...params} label={translate('Medication')} value={medicineInputValue} />}
           />
         </FormControl>
-
-        <div className='flex flex-col'>
-          <FormControlLabel
-            control={<Checkbox checked={isAdjuvant} onChange={() => setIsAdjuvant(!isAdjuvant)} />}
-            label={translate('Adjuvant')}
-          />
-          <FormControlLabel
-            control={<Checkbox checked={isNeoadjuvant} onChange={() => setIsNeoadjuvant(!isNeoadjuvant)} />}
-            label={translate('Neoadjuvant')}
-          />
-        </div>
-
         <Button
           variant="contained"
           color="primary"
