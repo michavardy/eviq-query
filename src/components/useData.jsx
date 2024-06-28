@@ -73,7 +73,7 @@ function useData() {
   const putComment = async (protocolId, newComment) => {
     const transformedProtocolId = protocolId.replace(/\s/g, '_');
     try {
-      const response = await fetch(`http://${window.location.hostname}/eviq-querycomments/${transformedProtocolId}`, {
+      const response = await fetch(`http://${window.location.hostname}/eviq-query/comments/${transformedProtocolId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

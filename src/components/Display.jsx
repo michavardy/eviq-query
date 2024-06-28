@@ -19,7 +19,8 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
 
   const filterBySection = (protocols) => {
     return protocols.filter((protocol) => {
-      return !selectedSection || protocol.category_name.toLowerCase() === selectedSection.toLowerCase();
+      const formattedSection = selectedSection ? selectedSection.replace(/ /g, "-").toLowerCase() : "";
+      return !selectedSection || protocol.category_name.toLowerCase() === formattedSection;
     });
   };
 
