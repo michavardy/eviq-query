@@ -4,7 +4,7 @@ import EditModal from './EditModule';
 import useData from './useData';
 import { useToasts } from 'react-toast-notifications';
 
-export default function Display({ protocols, selectedMedicines, selectedSection, selectedLanguage, translation, comments, reLoadCommentsData, isMetaStatic }) {
+export default function Display({ protocols, selectedMedicines, selectedSection, selectedLanguage, translation, comments, reLoadCommentsData, isMetaStatic, selectedProtocolID, setSelectedProtocolID }) {
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,7 +16,12 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
   const handleChangePage = (newPage) => {
     setPage(newPage);
   };
-
+  //const filterByID = (protocols) => {
+  //  return protocols.filter((protocol) => {
+  //    const formattedID = selectedProtocolID ? selectedProtocolID.replace(/ /g, "_").toLowerCase().trim() : "";
+  //    return !formattedID || protocol.protocol_id.replace(/ /g, "_").toLowerCase().trim() === formattedID;
+  //  });
+  //}
   const filterBySection = (protocols) => {
     return protocols.filter((protocol) => {
       const formattedSection = selectedSection ? selectedSection.replace(/ /g, "-").toLowerCase() : "";
@@ -24,15 +29,15 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
     });
   };
 
-  const filterByDrugSequence = (protocols) => {
-    return protocols.filter((protocol) => {
-      const firstDrug = protocol.drug_sequence[0]?.[0];
-      if (!firstDrug) {
-        return false; // Filter out protocols with no drug sequence
-      }
-      return true; // Keep protocols with drug sequence
-    });
-  };
+  //const filterByDrugSequence = (protocols) => {
+  //  return protocols.filter((protocol) => {
+  //    const firstDrug = protocol.drug_sequence[0]?.[0];
+  //    if (!firstDrug) {
+  //      return false; // Filter out protocols with no drug sequence
+  //    }
+  //    return true; // Keep protocols with drug sequence
+  //  });
+  //};
   function filterUniqueDrugs(protocols) {
     const filteredProtocols = protocols.map(protocol => {
       const seenDrugs = new Set();
@@ -53,16 +58,20 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
   }
   const filterByMedications = (protocols) => {
     return protocols.filter((protocol) => {
-      const firstDrug = protocol.drug_sequence[0]?.[0];
-      if (!firstDrug) return false; // No drug sequence, filter out
+      // Flatten all drugs in the sequence
+      const allDrugs = protocol.drug_sequence.flat();
+  
+      // Check if any of the selected medicines match any drug in the sequence
       return selectedMedicines.length === 0 ||
-        selectedMedicines.some(med => {
-          return med.medication.toLowerCase() === firstDrug.drug_name.toLowerCase() &&
-            med.adjuvant === firstDrug.is_adjuvant &&
-            med.neoadjuvant === firstDrug.is_neoadjuvant
-        }
-
-        );
+        selectedMedicines.every(med => {
+          return allDrugs.some(drug =>
+            med.medication &&
+            drug.drug_name &&
+            med.medication.toLowerCase() === drug.drug_name.toLowerCase() &&
+            med.adjuvant === drug.is_adjuvant &&
+            med.neoadjuvant === drug.is_neoadjuvant
+          );
+        });
     });
   };
   const filterByMetastatic = (protocols) => {
@@ -74,9 +83,9 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
     try {
 
       let filteredProtocols = [...protocols];
-
+      //filteredProtocols = filterByID(filteredProtocols);
       filteredProtocols = filterBySection(filteredProtocols);
-      filteredProtocols = filterByDrugSequence(filteredProtocols);
+      //filteredProtocols = filterByDrugSequence(filteredProtocols);
       filteredProtocols = filterByMedications(filteredProtocols);
       filteredProtocols = filterUniqueDrugs(filteredProtocols);
       filteredProtocols = filterByMetastatic(filteredProtocols);
@@ -106,8 +115,13 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
   };
 
   function translate(keyword) {
-    if (selectedLanguage === 'H' && translation[keyword]) {
-      return translation[keyword];
+    const lowerCaseTranslation = Object.keys(translation).reduce((acc, key) => {
+      acc[key.toLowerCase()] = translation[key];
+      return acc;
+    }, {});
+    const lowerCaseKeyword = keyword.toLowerCase();
+    if (selectedLanguage === 'H' && lowerCaseTranslation[lowerCaseKeyword]) {
+      return lowerCaseTranslation[lowerCaseKeyword];
     } else {
       return keyword;
     }
@@ -227,7 +241,7 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
                         {seqIndex === 0 && drugIndex === 0 && (
                           <>
                             <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">{protocol.protocol_id}</td>
-                            <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">{protocol.category_name}</td>
+                            <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">{translate(protocol.category_name)}</td>
                             <td
                               rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)}
                               className="px-4 py-2 text-sm text-gray-500 border break-words"
@@ -243,7 +257,7 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
                                 ))}
                             </td>
                             <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">
-                              <div className="flex space-x-2">
+                              <div className="flex justify-center space-x-2">
                                 {/* Edit Button */}
                                 <button
                                   onClick={() => openModal(protocol.protocol_id, '')}
@@ -263,17 +277,17 @@ export default function Display({ protocols, selectedMedicines, selectedSection,
                               </div>
                             </td>
                             <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">
-                              <a href={protocol.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Link</a>
+                              <a href={protocol.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{translate("Link")}</a>
                             </td>
-                            <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">{protocol.metastatic? 'Yes' : 'No'}</td>
+                            <td rowSpan={protocol.drug_sequence.reduce((acc, seq) => acc + seq.length, 0)} className="px-4 py-2 text-sm text-gray-500 border">{protocol.metastatic? translate('Yes') : translate('No')}</td>
                           </>
                         )}
                         {drugIndex === 0 && (
                           <td rowSpan={sequence.length} className="px-4 py-2 text-sm text-gray-500 border">{seqIndex + 1}</td>
                         )}
                         <td className="px-4 py-2 text-sm text-gray-500">{seqItem.drug_name}</td>
-                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.is_neoadjuvant ? 'Yes' : 'No'}</td>
-                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.is_adjuvant ? 'Yes' : 'No'}</td>
+                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.is_neoadjuvant ? translate('Yes') : translate('No')}</td>
+                        <td className="px-4 py-2 text-sm text-gray-500">{seqItem.is_adjuvant ? translate('Yes') : translate('No')}</td>
                         <td className="px-4 py-2 text-sm text-gray-500">{seqItem.dose}</td>
                         <td className="px-2 py-2 text-sm text-gray-500 max-w-[200px]">
                           {seqItem.cycles}

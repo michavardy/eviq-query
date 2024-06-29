@@ -12,10 +12,10 @@ import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import Switch from '@mui/material/Switch';  // Import the Switch component
 
-export default function Form({ sections, medications, selectedMedicines, setSelectedMedicines, selectedSection, setSelectedSection, protocols, translation, selectedLanguage, isMetaStatic, setIsMetaStatic }) {
+export default function Form({ sections, medications, selectedMedicines, setSelectedMedicines, selectedSection, setSelectedSection, protocols, translation, selectedLanguage, isMetaStatic, setIsMetaStatic, selectedProtocolID, setSelectedProtocolID }) {
   const [isAdjuvant, setIsAdjuvant] = useState(false);
   const [isNeoadjuvant, setIsNeoadjuvant] = useState(false);
-  const [medicineInputValue, setMedicineInputValue] = useState('');
+  const [medicineInputValue, setMedicineInputValue] = useState('')
 
   const handleSectionChange = (event) => {
     setSelectedSection(event.target.value);
@@ -28,7 +28,7 @@ export default function Form({ sections, medications, selectedMedicines, setSele
         { medication: value, adjuvant: isAdjuvant, neoadjuvant: isNeoadjuvant }
       ]);
     }
-    setMedicineInputValue(''); // Clear the medication field input after selection
+    setMedicineInputValue('');
   };
 
   const handleClear = () => {
@@ -61,6 +61,7 @@ export default function Form({ sections, medications, selectedMedicines, setSele
         {translate('Filter')}
       </Typography>
       <div className="flex flex-wrap items-center space-x-4 mb-4">
+
         <FormControl className="w-56">
           <InputLabel id="section_selection">
             {translate('Category')}
@@ -74,7 +75,7 @@ export default function Form({ sections, medications, selectedMedicines, setSele
               onChange={handleSectionChange}
             >
               {sections.sections.map((section) => (
-                <MenuItem key={section.id} value={section.name}>{section.name}</MenuItem>
+                <MenuItem key={section.id} value={section.name}>{translate(section.name)}</MenuItem>
               ))}
             </Select>
           ) : (
@@ -103,7 +104,7 @@ export default function Form({ sections, medications, selectedMedicines, setSele
             inputValue={medicineInputValue}
             onInputChange={(event, newInputValue) => setMedicineInputValue(newInputValue)}
             onChange={handleMedicineChange}
-            renderInput={(params) => <TextField {...params} label={translate('Medication')} value={medicineInputValue} />}
+            renderInput={(params) => { return <TextField {...params} label={translate('Medication')} value={medicineInputValue} /> }}
           />
         </FormControl>
         <Button

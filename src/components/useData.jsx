@@ -18,22 +18,21 @@ function useData() {
         const jsonData = await response.json();
         setSections(jsonData);
     };
-    const fetchMediationData = async () => {
-      const response = await fetch(`${baseURL}/eviq-query/medications`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
-      }
-      const jsonData = await response.json();
-      setMedications(jsonData)
-    }
-    const fetchProtocolData = async () => {
-      const response = await fetch(`${baseURL}/eviq-query/protocols`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
-      }
-      const jsonData = await response.json();
-      setProtocols(jsonData);
-  };
+    const fetchProtocolData = () => {
+      fetch(`${baseURL}/eviq-query/protocols`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch data');
+          }
+          return response.json();
+        })
+        .then(jsonData => {
+          setProtocols(jsonData);
+        })
+        .catch(error => {
+          console.error('Error fetching protocols:', error);
+        });
+    };
   const fetchTranslationData = async () => {
     const response = await fetch(`${baseURL}/eviq-query/translation`);
     if (!response.ok) {
@@ -52,12 +51,35 @@ function useData() {
   }
 
     fetchSectionData();
-    fetchMediationData();
     fetchProtocolData();
     fetchTranslationData();
     fetchCommentsData();
   }, []);
 
+  useEffect(()=>{
+    const extractMedicationsFromProtocols = () => {
+      if (protocols.length > 0 && medications.length === 0) {
+        const medicationSet = new Set();
+        protocols.forEach(protocol => {
+          protocol.drug_sequence.forEach(sequence => {
+            sequence.forEach(drug => {
+              if (drug.drug_name) { // Filter out null or undefined drug names
+                const cleanedDrugName = drug.drug_name.toLowerCase().replace(/[^a-z]/g, '').trim();
+                medicationSet.add(cleanedDrugName);
+              }
+            });
+          });
+        });
+        const medicationArray = Array.from(medicationSet)
+        console.log('medications')
+        console.log(medicationArray)
+        setMedications(medicationArray);
+      }
+  
+    };
+    extractMedicationsFromProtocols()
+  },[protocols, medications])
+  
   useEffect(()=>{
     function extractMetastaticData() {
       if (protocols.length > 0) {
@@ -70,6 +92,11 @@ function useData() {
     }
     extractMetastaticData();
   },[protocols])
+
+
+
+
+
   const putComment = async (protocolId, newComment) => {
     const transformedProtocolId = protocolId.replace(/\s/g, '_');
     try {

@@ -28,6 +28,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the built React application from the build-stage
 COPY --from=build-stage /app/build ./frontend/build
 
+# Copy favicon
+COPY public/favicon.ico /app/frontend/build/favicon.ico
+
 # Copy the FastAPI application code
 COPY scraper/ .
 

@@ -42,8 +42,8 @@ class EditCommentRequest(BaseModel):
 
 # Serve static files from the 'frontend/build' directory
 app.mount("/static", StaticFiles(directory=Path("/app/frontend/build/static")), name="static")
-##
-### Serve the React frontend
+###
+#### Serve the React frontend
 @app.get("/eviq-query")
 async def serve_frontend():
     frontend_path = Path("/app/frontend/build/index.html")
@@ -51,7 +51,7 @@ async def serve_frontend():
 #Serve favicon.ico
 @app.get("/eviq-query/favicon.ico")
 async def favicon():
-    favicon_path = Path("/app/frontend/build/favicon.ico")
+    favicon_path = Path("/app/frontend/build/public/favicon.ico")
     return FileResponse(favicon_path)
 
 @app.get("/eviq-query/sections")
