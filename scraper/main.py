@@ -51,7 +51,7 @@ async def serve_frontend():
 #Serve favicon.ico
 @app.get("/eviq-query/favicon.ico")
 async def favicon():
-    favicon_path = Path("/app/frontend/build/public/favicon.ico")
+    favicon_path = Path("/app/frontend/build/favicon.ico")
     return FileResponse(favicon_path)
 
 @app.get("/eviq-query/sections")
